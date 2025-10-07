@@ -32,13 +32,12 @@ clear-cache:
 	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) view:clear
 	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) optimize:clear
 
-yarn-run:
-	cd ../repos && yarn run dev
-
 migrate:
 	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) migrate
 
 
+test:
+	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) test
 
 
 
