@@ -10,7 +10,7 @@ build:
 	$(DOCKER_COMPOSE_APP_COMPOSER) install
 	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) key:generate
 	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) vendor:publish --provider="Spatie\\Activitylog\\ActivitylogServiceProvider" --tag="activitylog-migrations"
-	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) migrate --seed
+	$(DOCKER_COMPOSE_APP_PHP_ARTISAN) migrate:fresh --seed
 	$(DOCKER_COMPOSE) stop
 
 up:

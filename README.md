@@ -1,61 +1,147 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# System Zarządzania Książkami i Autorami (Laravel API)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Projekt to nowoczesne API zbudowane we frameworku Laravel, służące do zarządzania bazą autorów i ich dzieł. System wykorzystuje **Laravel Sanctum** do autoryzacji oraz autorski system **Pipeline** do zaawansowanego filtrowania danych. Całość jest w pełni zkonteneryzowana przy użyciu Dockera.
 
-## About Laravel
+## 🛠 Konfiguracja środowiska
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Zanim uruchomisz projekt, musisz przygotować plik ze zmiennymi środowiskowymi. Projekt zawiera gotowy wzorzec `.env.dev` skonfigurowany pod kontenery Docker.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```bash
+# Skopiuj szablon konfiguracji
+cp .env.dev .env
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Upewnij się, że w pliku `.env` dane bazy danych są zgodne z serwisem Docker (domyślnie w `.env.dev`):
 
-## Learning Laravel
+```env
+DB_HOST=db
+DB_DATABASE=laravel
+DB_USERNAME=laravel
+DB_PASSWORD=laravel
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 Szybki start (Docker)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Do zarządzania aplikacją przygotowano plik `Makefile`, który automatyzuje pracę z kontenerami.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. Budowa i instalacja
 
-## Laravel Sponsors
+Poniższa komenda zbuduje obrazy, uruchomi kontenery, zainstaluje zależności PHP, wygeneruje klucz aplikacji oraz przygotuje bazę danych wraz z danymi testowymi (seeding):
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+make build
+```
 
-### Premium Partners
+### 2. Wyświetlanie Tokena
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Podczas procesu budowania (`make build`) w konsoli zostanie wyświetlony token dostępu dla administratora. Zapisz go, aby móc korzystać z chronionych endpointów:
 
-## Contributing
+```
+-------------------------------------------
+Token for admin@example.com:
+1|gORQDikcQX18S7rJUGvhYypL66aeLkNWY05ZqrSE3394870d
+-------------------------------------------
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Komendy Makefile
 
-## Code of Conduct
+* `make up` – uruchomienie kontenerów w tle
+* `make stop` – zatrzymanie kontenerów
+* `make restart` – restart wszystkich usług
+* `make test` – uruchomienie pakietu testów PHPUnit
+* `make migrate` – uruchomienie migracji bazy danych
+* `make clear-cache` – kompleksowe czyszczenie pamięci podręcznej
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🔐 Autoryzacja (Sanctum)
 
-## Security Vulnerabilities
+Dostęp do tworzenia nowych książek (`POST /api/books`) jest zabezpieczony tokenem Sanctum. Pozostałe operacje (`update`, `delete`, `show`) w tej konfiguracji są publiczne.
+Aby wykonać zapytanie chronione, dołącz token w nagłówku:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+Authorization: Bearer <TWÓJ_TOKEN>
+```
 
-## License
+## 📡 Endpointy API
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 📚 Książki (`books`)
+
+| Metoda | Endpoint        | Opis                         | Autoryzacja   |
+| ------ | --------------- | ---------------------------- | ------------- |
+| GET    | /api/books      | Lista książek (paginacja 10) | Brak          |
+| GET    | /api/books/{id} | Szczegóły książki + autorzy  | Brak          |
+| POST   | /api/books      | Utworzenie nowej książki     | Sanctum Token |
+| PUT    | /api/books/{id} | Aktualizacja danych książki  | Brak          |
+| DELETE | /api/books/{id} | Usunięcie książki            | Brak          |
+
+### ✍️ Autorzy (`authors`)
+
+| Metoda | Endpoint          | Opis                            | Autoryzacja |
+| ------ | ----------------- | ------------------------------- | ----------- |
+| GET    | /api/authors      | Lista autorów + filtry          | Brak        |
+| GET    | /api/authors/{id} | Szczegóły autora i jego książki | Brak        |
+
+**Zaawansowane filtrowanie:**
+Endpoint `/api/authors` wspiera filtr `search`, który przeszukuje autorów po tytułach ich książek dzięki wykorzystaniu wzorca Pipeline:
+
+```
+GET /api/authors?search=Hobbit
+```
+
+## 🧪 Przykłady zapytań cURL
+
+### Tworzenie książki (Wymaga Tokena)
+
+```bash
+curl -X POST http://localhost/api/books \
+     -H "Authorization: Bearer <TWOJ_TOKEN>" \
+     -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -d '{
+        "title": "Wiedźmin: Ostatnie życzenie",
+        "author_ids": [1, 2]
+     }'
+```
+
+### Aktualizacja książki (Publiczne)
+
+```bash
+curl -X PUT http://localhost/api/books/1 \
+     -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -d '{
+        "title": "Nowy Tytuł",
+        "author_ids": [1]
+     }'
+```
+
+### Pobranie jednej książki
+
+```bash
+curl -X GET http://localhost/api/books/1 \
+     -H "Accept: application/json"
+```
+
+## 🤖 Interaktywna Konsola (Artisan)
+
+Projekt zawiera dedykowaną komendę CLI do szybkiego tworzenia autorów bezpośrednio z poziomu terminala:
+
+```bash
+docker compose exec app php artisan app:create-author
+```
+
+Komenda poprosi o podanie imienia i nazwiska, zwaliduje dane i utworzy rekord w bazie.
+
+## 🧪 Testy
+
+Aplikacja posiada pełne pokrycie testami Feature (PHPUnit). Testy sprawdzają:
+
+* Poprawność autoryzacji Sanctum (401 dla nieautoryzowanych prób zapisu)
+* Działanie filtrów Pipeline w wyszukiwarce autorów
+* Relacje Many-to-Many i poprawność usuwania rekordów z tabel pivot
+* Obsługę błędów 404 i walidację danych (422)
+
+### Uruchomienie testów
+
+```bash
+make test
+```

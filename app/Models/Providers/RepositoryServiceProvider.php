@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace App\Models\Providers;
 
 use App\Repositories\Eloquent\CompanyRepository;
 use App\Repositories\Eloquent\EmployeeRepository;
