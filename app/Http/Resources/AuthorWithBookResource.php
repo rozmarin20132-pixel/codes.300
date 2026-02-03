@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AuthorWithBookResource extends JsonResource
+class AuthorWithBookResource extends AuthorResource
 {
     /**
      * Transform the resource into an array.
@@ -14,13 +14,13 @@ class AuthorWithBookResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'last_book_title' => $this->last_book_title,
-            'books' => BookResource::collection($this->whenLoaded('books')),
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
-        ];
+        return array_merge(
+            parent::toArray($request),
+            [
+                'books' => BookResource::collection(
+                    $this->whenLoaded('books')
+                ),
+            ]
+        );
     }
 }
