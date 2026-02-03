@@ -18,8 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-
-        // Рендерим все исключения для API
         $exceptions->render(function (\Throwable $e, Request $request) {
             if ($request->is('api/*')) {
 
@@ -37,7 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], 422);
                 }
 
-                // 2. Обработка 404 (модель не найдена)
                 if ($e instanceof NotFoundHttpException) {
                     return response()->json([
                         'success' => false,
