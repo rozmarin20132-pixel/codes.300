@@ -20,7 +20,7 @@ class AuthorApiTest extends TestCase
         $response = $this->getJson('/api/authors');
 
         $response->assertStatus(200)
-            ->assertJsonCount(15, 'data') // По умолчанию paginate(15)
+            ->assertJsonCount(15, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => ['id', 'name', 'last_book_title', 'books']
